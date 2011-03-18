@@ -1,0 +1,48 @@
+## YAML Template.
+---
+Auth_Role:
+  columns:
+    name: {type: string(32)}
+    description: {type: string(255)}
+  relations:
+    Users:
+      class: Auth_User
+      local: user_id
+      foreign: role_id
+      refClass: Auth_RoleUser
+
+Auth_RoleUser:
+  columns:
+    user_id: {type: integer, primary: true}
+    role_id: {type: integer, primary: true}
+  relations:
+    Users:
+      class: Auth_User
+
+Auth_User:
+  columns:
+    email: {type: string(127)}
+    username: {type: string(32)}
+    password: {type: string(50)}
+    logins: {type: integer}
+    last_login: {type: integer}
+  ##unique username
+  ##unique email
+  relations:
+    Roles:
+      class: Auth_Role
+      local: role_id
+      foreign: user_id
+      refClass: Auth_RoleUser
+
+Auth_UserToken:
+  columns:
+    user_id: {type: integer}
+    user_agent: {type: string(40)}
+    token: {type: string(32)}
+    created: {type: integer}
+    expires: {type: integer}
+  ##unique token
+  relations:
+    User:
+      class: Auth_User
