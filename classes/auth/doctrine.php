@@ -66,8 +66,8 @@ class Auth_Doctrine extends Auth {
      */
     public function _login($user, $password, $remember) {
         // Make sure we have a user object
-        $user = $this->_get_object($user);               
-        
+        $user = $this->_get_object($user);
+
         // If the passwords match, perform a login
         if ($user->has_role('login') AND $user->password === $password) {
             if ($remember === TRUE) {
@@ -232,14 +232,13 @@ class Auth_Doctrine extends Auth {
      */
     protected function _get_object($user) {
         static $current;
-
         //make sure the user is loaded only once.
         if (!is_object($current) AND is_string($user)) {
             // Load the user
             $current = Doctrine_Query::create()
                         ->from('Model_User u')
                         ->leftJoin('u.Roles')
-                        ->where('username = ?',$user)
+                        ->where('email = ?',$user)
                         ->fetchOne();
         }
         //@todo: why did the $user->loaded come out?
