@@ -19,17 +19,16 @@ class Auth_Doctrine extends Auth {
         $status = FALSE;
 
         // Get the user from the session
-        $user = $this->_session->get($this->_config['session_key']);
-
+        $user = $this->get_user();
         if (!is_object($user)) {
             // Attempt auto login
             if ($this->auto_login()) {
                 // Success, get the user back out of the session
-                $user = $this->_session->get($this->_config['session_key']);
+                $user = $this->get_user();
             }
         }
 
-        if (is_object($user) AND $user instanceof Model_User AND $user->id) {
+        if (is_object($user) AND $user instanceof Model_Auth_User AND $user->id) {
             // Everything is okay so far
             $status = TRUE;
 
@@ -77,6 +76,7 @@ class Auth_Doctrine extends Auth {
                 // Set token data
                 $token->user = $user->id;
                 $token->expires = time() + $this->_config['lifetime'];
+                $token->type = 'autologin';
 
                 $token->create();
 
@@ -100,12 +100,14 @@ class Auth_Doctrine extends Auth {
      * @param   mixed    username
      * @return  boolean
      */
-    public function force_login($user) {
+    public function force_login($user, $mark = true) {
         // Make sure we have a user object
         $user = $this->_get_object($user);
-
         // Mark the session as forced, to prevent users from changing account information
-        $_SESSION['auth_forced'] = TRUE;
+        if ($mark)
+        {
+            $_SESSION['auth_forced'] = TRUE;
+        }
 
         // Run the standard completion
         $this->complete_login($user);
@@ -242,7 +244,7 @@ class Auth_Doctrine extends Auth {
                         ->fetchOne();
         }
         //@todo: why did the $user->loaded come out?
-        if ($user instanceof Model_User) {
+        if ($user instanceof Model_Auth_User) {
             $current = $user;
         }
 
