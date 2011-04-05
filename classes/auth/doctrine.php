@@ -68,7 +68,7 @@ class Auth_Doctrine extends Auth {
         $user = $this->_get_object($user);
 
         // If the passwords match, perform a login
-        if ($user->has_role('login') AND $user->password === $password) {
+        if ($user AND $user->has_role('login') AND $user->password === $password) {
             if ($remember === TRUE) {
                 // Create a new autologin token
                 $token = new Model_User_Token();
@@ -184,7 +184,7 @@ class Auth_Doctrine extends Auth {
         // Make sure we have a user object
         $user = $this->_get_object($user);
 
-        return $user->password;
+        return $user ? $user->password : false;
     }
 
     /**
