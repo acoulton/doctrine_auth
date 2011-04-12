@@ -71,7 +71,7 @@ class Auth_Doctrine extends Auth {
         if ($user AND $user->has_role('login') AND $user->password === $password) {
             if ($remember === TRUE) {
                 // Create a new autologin token
-                $token = new Model_User_Token();
+                $token = new Model_Auth_User_Token();
 
                 // Set token data
                 $token->user = $user->id;
@@ -122,7 +122,7 @@ class Auth_Doctrine extends Auth {
         $tokenString = Cookie::get('authautologin');
         if ($tokenString) {
             // Load the token and user
-            $token = Model_Auth_UserToken::fetchTokenFromString($tokenString);
+            $token = Model_Auth_User_Token::fetchTokenFromString($tokenString);
 
             if ($token) {
                 if ($token->user_agent === sha1(Request::$user_agent)) {
@@ -156,7 +156,7 @@ class Auth_Doctrine extends Auth {
      */
     public function logout($destroy = FALSE, $logout_all = FALSE) {
         $tokenString = Cookie::get('authautologin');
-        $token = Model_Auth_UserToken::fetchTokenFromString($tokenString);
+        $token = Model_Auth_User_Token::fetchTokenFromString($tokenString);
 
         // Delete the autologin Cookie to prevent re-login
         Cookie::delete('authautologin');
@@ -164,7 +164,7 @@ class Auth_Doctrine extends Auth {
         // Clear the autologin token from the database
         if ($token && $logout_all) {
             $query = Doctrine_Query::create()
-                        ->delete('Model_User_Token')
+                        ->delete('Model_Auth_User_Token')
                         ->where('user_id = ?',$token->user_id)
                         ->execute();
         } elseif ($token) {

@@ -14,7 +14,7 @@
  * @property Doctrine_Collection $Roles
  * @property Model_Person $Person
  * @property Doctrine_Collection $Application
- * @property Doctrine_Collection $Auth_UserToken
+ * @property Doctrine_Collection $Auth_User_Token
  *
  * @package    StaffAdmin
  * @subpackage Models
@@ -91,7 +91,7 @@ abstract class AndrewC_Model_Auth_User extends KoDoctrine_Record
              'local' => 'id',
              'foreign' => 'tag_user_id'));
 
-        $this->hasMany('Model_Auth_UserToken as Auth_UserToken', array(
+        $this->hasMany('Model_Auth_User_Token as Tokens', array(
              'local' => 'id',
              'foreign' => 'user_id'));
         $this->hasMutator('password', 'set_password');
@@ -180,7 +180,7 @@ abstract class AndrewC_Model_Auth_User extends KoDoctrine_Record
 
         public static function activate($token)
         {
-            $token = Model_Auth_UserToken::fetchTokenFromString($token);
+            $token = Model_Auth_User_Token::fetchTokenFromString($token);
             if ( ! $token
                  OR (($token->type != 'activate') AND ($token->type !='reset')))
             {
@@ -220,7 +220,7 @@ abstract class AndrewC_Model_Auth_User extends KoDoctrine_Record
                 return false;
             }
 
-            $token = new Model_User_Token();
+            $token = new Model_Auth_User_Token();
 
             // Set token data
             $token->User = $user;
