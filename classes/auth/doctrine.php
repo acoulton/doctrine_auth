@@ -122,7 +122,7 @@ class Auth_Doctrine extends Auth {
         $tokenString = Cookie::get('authautologin');
         if ($tokenString) {
             // Load the token and user
-            $token = Model_Auth_UserTokenTable::fetchTokenFromString($tokenString);
+            $token = Model_Auth_UserToken::fetchTokenFromString($tokenString);
 
             if ($token) {
                 if ($token->user_agent === sha1(Request::$user_agent)) {
@@ -156,7 +156,7 @@ class Auth_Doctrine extends Auth {
      */
     public function logout($destroy = FALSE, $logout_all = FALSE) {
         $tokenString = Cookie::get('authautologin');
-        $token = Model_Auth_UserTokenTable::fetchTokenFromString($tokenString);
+        $token = Model_Auth_UserToken::fetchTokenFromString($tokenString);
 
         // Delete the autologin Cookie to prevent re-login
         Cookie::delete('authautologin');
