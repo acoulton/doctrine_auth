@@ -8,5 +8,11 @@ return array
 	'lifetime' => 1209600,
 	'session_key' => 'auth_user',
         'register_role' => 'registerUser',
-        'activation_token_life' => Date::DAY,
+        'activation' => array(
+            'token_life' => Date::DAY,
+            'email_subject' => 'Email verification',
+            'email_sender_email' => null,
+            'email_sender_name' => null,
+        )
+        
 );

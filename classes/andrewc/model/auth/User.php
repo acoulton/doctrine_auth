@@ -224,7 +224,7 @@ abstract class AndrewC_Model_Auth_User extends KoDoctrine_Record
 
             // Set token data
             $token->User = $user;
-            $token->expires = time() + Kohana::config('auth.activation_token_life');
+            $token->expires = time() + Kohana::config('auth.activation.token_life');
             $token->type = $type;
             $token->save();
 
@@ -248,11 +248,12 @@ abstract class AndrewC_Model_Auth_User extends KoDoctrine_Record
             $textMessage = preg_replace('/[ \t]+/', ' ', strip_tags($richMessage));
 
             $message = Swift_Message::newInstance(
-                                "Edinburgh International Book Festival - email verification",
+                                Kohana::config('auth.activation.email_subject'),
                                 $textMessage);
             $message->addPart($richMessage,'text/html');
 
-            $message->setFrom('jobs@edbookfest.co.uk','Edinburgh International Book Festival');
+            $message->setFrom(Kohana::config('auth.activation.email_sender_name'),
+                              Kohana::config('auth.activation.email_sender_name'));
             $message->setTo($user->email);
 
             if ( ! $mailer->send($message)) {
