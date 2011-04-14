@@ -251,8 +251,8 @@ abstract class AndrewC_Model_Auth_User extends KoDoctrine_Record
                                 Kohana::config('auth.activation.email_subject'),
                                 $textMessage);
             $message->addPart($richMessage,'text/html');
-
-            $message->setFrom(Kohana::config('auth.activation.email_sender_name'),
+            
+            $message->setFrom(Kohana::config('auth.activation.email_sender_email'),
                               Kohana::config('auth.activation.email_sender_name'));
             $message->setTo($user->email);
 
