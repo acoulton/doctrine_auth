@@ -12,8 +12,6 @@
  * @property integer $logins
  * @property integer $last_login
  * @property Doctrine_Collection $Roles
- * @property Model_Person $Person
- * @property Doctrine_Collection $Application
  * @property Doctrine_Collection $Auth_User_Token
  *
  * @package    StaffAdmin
@@ -86,10 +84,6 @@ abstract class AndrewC_Model_Auth_User extends KoDoctrine_Record
              'refClass' => 'Model_Auth_Roleuser',
              'local' => 'user_id',
              'foreign' => 'role_id'));
-
-        $this->hasMany('Model_Application as Application', array(
-             'local' => 'id',
-             'foreign' => 'tag_user_id'));
 
         $this->hasMany('Model_Auth_User_Token as Tokens', array(
              'local' => 'id',
@@ -251,7 +245,7 @@ abstract class AndrewC_Model_Auth_User extends KoDoctrine_Record
                                 Kohana::config('auth.activation.email_subject'),
                                 $textMessage);
             $message->addPart($richMessage,'text/html');
-            
+
             $message->setFrom(Kohana::config('auth.activation.email_sender_email'),
                               Kohana::config('auth.activation.email_sender_name'));
             $message->setTo($user->email);
