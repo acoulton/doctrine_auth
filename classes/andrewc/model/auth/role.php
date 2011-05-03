@@ -42,17 +42,17 @@ abstract class AndrewC_Model_Auth_Role extends KoDoctrine_Record
      * Returns a Role object, creating it in the database if it doesn't exist already
      * @param string $role
      * @param string $description
-     * @return Model_Role
+     * @return Model_Auth_Role
      */
-    public static function factory($role, $description = null) {
+    public static function factory($role_name, $description = null) {
         $role = Doctrine_Query::create()
                 ->from('Model_Auth_Role')
-                ->where('name = ?',$role)
+                ->where('name = ?',$role_name)
                 ->fetchOne();
 
         if ( ! $role) {
             $role = new Model_Role();
-            $role->name = $role;
+            $role->name = $role_name;
             $role->description = $description;
             $role->save();
         }
