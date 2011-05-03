@@ -38,16 +38,22 @@ abstract class AndrewC_Model_Auth_Role extends KoDoctrine_Record
              'foreign' => 'user_id'));
     }
 
-    public static function getLoginRole() {
+    /**
+     * Returns a Role object, creating it in the database if it doesn't exist already
+     * @param string $role
+     * @param string $description
+     * @return Model_Role
+     */
+    public static function factory($role, $description = null) {
         $role = Doctrine_Query::create()
                 ->from('Model_Auth_Role')
-                ->where('name = ?','login')
+                ->where('name = ?',$role)
                 ->fetchOne();
 
         if ( ! $role) {
             $role = new Model_Role();
-            $role->name = 'login';
-            $role->description = 'User can login';
+            $role->name = $role;
+            $role->description = $description;
             $role->save();
         }
         return $role;

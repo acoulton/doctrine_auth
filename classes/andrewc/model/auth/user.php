@@ -185,7 +185,7 @@ abstract class AndrewC_Model_Auth_User extends KoDoctrine_Record
 
             $token->delete();
 
-            $login = Model_Auth_Role::getLoginRole();
+            $login = Model_Auth_Role::factory('login','User can login');
 
             // Add a login role if they don't have one
             if ( ! $user->has_role($login->id))
