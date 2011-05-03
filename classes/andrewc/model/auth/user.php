@@ -117,7 +117,7 @@ abstract class AndrewC_Model_Auth_User extends KoDoctrine_Record
 	public function has_role($role)
 	{
 		// Check what sort of argument we have been passed
-		if ($role instanceof Model_Role)
+		if ($role instanceof Model_Auth_Role)
 		{
 			$key = 'id';
 			$val = $role->id;
@@ -199,7 +199,7 @@ abstract class AndrewC_Model_Auth_User extends KoDoctrine_Record
             return $user;
         }
 
-        public static function send_token($type, $user)
+        public static function send_token($type, $user, $mail_template = null)
         {
             if ( ! ($user instanceof Model_User))
             {
@@ -232,9 +232,12 @@ abstract class AndrewC_Model_Auth_User extends KoDoctrine_Record
              */
             $mailer = Email::connect();
             /* @var $mailer Swift_Mailer */
-
+            if ($mail_template == null)
+            {
+                $mail_template = $type;
+            }
             $richMessage = View::factory('templates/emailBase')
-                            ->set('bodyText', View::factory("auth/emails/$type")
+                            ->set('bodyText', View::factory("auth/emails/$mail_template")
                                               ->set('user',$user)
                                               ->set('token_uri', $url)
                                               ->render());
@@ -253,6 +256,34 @@ abstract class AndrewC_Model_Auth_User extends KoDoctrine_Record
             if ( ! $mailer->send($message)) {
                 Kohana::$log->add(Kohana::ERROR, "Error sending token for user $user->email");
             }
+
+            return $user;
+        }
+
+        /**
+         * Creates a user account for someone, adding any relevant roles and
+         * sending them an activation message.
+         * @param string $email
+         * @param string $full_name
+         * @return Model_Auth_User
+         */
+        public static function create_user($email, $full_name, $roles = array(), $mail_template = 'new_account')
+        {
+            $user = new Model_Auth_User();
+            $user->email = $email;
+            $user->full_name = $full_name;
+
+            // Set a random password, they're going to be sent a reset url
+            $user->password = UUID::v4();
+            foreach ($roles as $role)
+            {
+                $role = Model_Auth_Role::factory($role);
+                $user->Roles[] = $role;
+            }
+            $user->save();
+
+            // Now send the activation
+            Model_Auth_User::send_token('reset', $user, $mail_template);
 
             return $user;
         }
