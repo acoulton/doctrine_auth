@@ -287,4 +287,15 @@ abstract class AndrewC_Model_Auth_User extends KoDoctrine_Record
 
             return $user;
         }
+
+    /**
+     * Returns the (local) URL a user should be sent to once they login. By default
+     * comes from the auth.userhome config setting
+     * @return string
+     */
+    public function getAccountHomepage()
+    {
+        return Kohana::config('auth.user_homepage');
+    }
+
 }

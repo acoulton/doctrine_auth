@@ -13,6 +13,7 @@ return array
             'email_subject' => 'Email verification',
             'email_sender_email' => null,
             'email_sender_name' => null,
-        )
-        
+        ),
+        'user_homepage' => '/',
+
 );
