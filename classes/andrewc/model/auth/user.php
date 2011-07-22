@@ -255,7 +255,7 @@ abstract class AndrewC_Model_Auth_User extends KoDoctrine_Record
             $message->setTo($user->email);
 
             if ( ! $mailer->send($message)) {
-                Kohana::$log->add(Kohana::ERROR, "Error sending token for user $user->email");
+                Kohana::$log->add(Log::ERROR, "Error sending token for user $user->email");
             }
 
             return $user;
