@@ -140,7 +140,7 @@ class Controller_Auth extends Controller_Base_Public {
     public function action_account()
     {
         if ( ! Auth::instance()->logged_in()) {
-                Kohana::$log->add(Kohana::ERROR,
+                Kohana::$log->add(Log::ERROR,
                             "Attempted to access account edit without logging in");
                 $this->request->redirect(Route::get('auth')->uri(array('action'=>'signout')));
             }
