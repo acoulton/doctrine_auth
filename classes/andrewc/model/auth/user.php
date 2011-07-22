@@ -215,10 +215,11 @@ abstract class AndrewC_Model_Auth_User extends KoDoctrine_Record
             }
 
             $token = new Model_Auth_User_Token();
+            $config = Kohana::$config->load('auth.activation');
 
             // Set token data
             $token->User = $user;
-            $token->expires = time() + Kohana::config('auth.activation.token_life');
+            $token->expires = time() + $config['token_life'];
             $token->type = $type;
             $token->save();
 
@@ -245,12 +246,12 @@ abstract class AndrewC_Model_Auth_User extends KoDoctrine_Record
             $textMessage = preg_replace('/[ \t]+/', ' ', strip_tags($richMessage));
 
             $message = Swift_Message::newInstance(
-                                Kohana::config('auth.activation.email_subject'),
+                                $config('email_subject'),
                                 $textMessage);
             $message->addPart($richMessage,'text/html');
 
-            $message->setFrom(Kohana::config('auth.activation.email_sender_email'),
-                              Kohana::config('auth.activation.email_sender_name'));
+            $message->setFrom($config('email_sender_email'),
+                              $config('email_sender_name'));
             $message->setTo($user->email);
 
             if ( ! $mailer->send($message)) {
@@ -295,7 +296,7 @@ abstract class AndrewC_Model_Auth_User extends KoDoctrine_Record
      */
     public function getAccountHomepage()
     {
-        return Kohana::config('auth.user_homepage');
+        return Kohana::$config->load('auth.user_homepage');
     }
 
 }
