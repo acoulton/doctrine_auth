@@ -19,6 +19,12 @@ use Behat\Gherkin\Node\PyStringNode,
  */
 class Auth_FeatureContext extends BehatContext
 {
+    
+    /**
+     * @var string The last token found by the aUniqueTokenShouldBeCreated test
+     */
+    public last_token = NULL;
+    
     /**
      * Initializes context.
      * Every scenario gets it's own context object.
@@ -47,7 +53,7 @@ class Auth_FeatureContext extends BehatContext
         $collection = new Doctrine_Collection('Model_Auth_User');
         foreach ($users as $user_data)
         {
-            $user_model = $collection[];
+            $user_model = $collection->get(NULL);
             
             // Remove roles data for separate processing
             if (isset($user_data['roles']))
@@ -72,11 +78,30 @@ class Auth_FeatureContext extends BehatContext
     }
 
     /**
-     * @Given /^a unique reset token should be created for user "([^"]*)"$/
+     * @Given /^a unique (reset|activation) token should be created for user "([^"]*)"$/
      */
-    public function aUniqueResetTokenShouldBeCreatedForUser($argument1)
+    public function aUniqueTokenShouldBeCreatedForUser($type, $user_email)
     {
-        throw new PendingException();
+        if ($type === 'activation')
+        {
+            $type = 'activate';
+        }
+        
+        $user = Model_Auth_User::factory_by_email($user_email);
+        
+        foreach ($user->Tokens as $token)
+        {
+            if ($token->type === $type)
+            {
+                // Store for verification or use in other contexts
+                $this->last_token = $token->token;                
+                return TRUE;
+            }
+        }
+        
+        // No match
+        throw new Exception("No token of type '$type' was found for '$user_email'");
+        
     }
 
     /**
@@ -84,13 +109,21 @@ class Auth_FeatureContext extends BehatContext
      */
     public function theFollowingTokensExist(TableNode $table)
     {
-        throw new PendingException();
+        $tokens = new Doctrine_Collection('Model_Auth_User_Token');
+        
+        foreach ($table->getHash() as $token_data)
+        {
+            $token = $tokens->get(NULL);
+            $token->fromArray($token_data);
+        }
+        
+        $tokens->save();
     }
 
     /**
      * @Given /^I should be logged in as "([^"]*)"$/
      */
-    public function iShouldBeLoggedInAs($argument1)
+    public function iShouldBeLoggedInAs($user)
     {
         throw new PendingException();
     }
@@ -98,33 +131,42 @@ class Auth_FeatureContext extends BehatContext
     /**
      * @Given /^the user "([^"]*)" should exist with password "([^"]*)" and roles "([^"]*)"$/
      */
-    public function theUserShouldExistWithPasswordAndRoles($argument1, $argument2, $argument3)
+    public function theUserShouldExistWithPasswordAndRoles($user_email, $password, $roles)
     {
-        throw new PendingException();
+        $user = Model_Auth_User::factory_by_email($user_email);
+        assertInstanceOf('Model_Auth_User', $user);
+        
+        assertEquals($password, Auth::instance()->hash($password), 'Assert hashed passwords match');
+        
+        $this->theUserShouldHaveTheRoles($user, $roles);
     }
 
     /**
-     * @Given /^the token "([^"]*)" should be marked as activated$/
+     * @Given /^the token "([^"]*)" should no longer be valid$/
      */
-    public function theTokenShouldBeMarkedAsActivated($argument1)
+    public function theTokenShouldNoLongerBeValid($token)
     {
-        throw new PendingException();
+        $token = Model_Auth_User_Token::fetchTokenFromString($token);
+        
+        assertFalse($token);
     }
 
     /**
-     * @Given /^a unique activation token should be created for user "([^"]*)"$/
+     * @Given /^the user "([^"]*)" should have the "([^"]*)" roles?$/
      */
-    public function aUniqueActivationTokenShouldBeCreatedForUser($argument1)
+    public function theUserShouldHaveTheRole($user, $roles)
     {
-        throw new PendingException();
-    }
-
-    /**
-     * @Given /^the user "([^"]*)" should have the "([^"]*)" role$/
-     */
-    public function theUserShouldHaveTheRole($argument1, $argument2)
-    {
-        throw new PendingException();
+        if ( ! $user instanceof Model_Auth_User)
+        {
+            $user = Model_Auth_User::factory_by_email($user);
+        }
+        
+        $roles = explode(',',$roles);
+        
+        foreach ($roles as $role)
+        {
+            assertTrue($user->has_role($role), "Verifying user has role '$role'");
+        }        
     }
 
 }
