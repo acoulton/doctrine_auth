@@ -30,11 +30,45 @@ class Auth_FeatureContext extends BehatContext
     }
 
     /**
-     * @Given /^only the following users exist:$/
+     * @Given /^(only|) the following users exist:$/
      */
-    public function onlyTheFollowingUsersExist(TableNode $table)
+    public function onlyTheFollowingUsersExist($only, TableNode $table)
     {
-        throw new PendingException();
+        // Delete existing users if required
+        if ($only)
+        {
+            Doctrine_Query::create()
+                ->delete('Model_Auth_User')
+                ->execute();
+        }
+        
+        // Create users
+        $users = $table->getHash();
+        $collection = new Doctrine_Collection('Model_Auth_User');
+        foreach ($users as $user_data)
+        {
+            $user_model = $collection[];
+            
+            // Remove roles data for separate processing
+            if (isset($user_data['roles']))
+            {
+                $roles = $user_data['roles'];
+                unset($user_data['roles'])
+            }
+            
+            $user_model->fromArray($user_data);
+            
+            // Process roles
+            $roles = explode(',',$roles);
+            foreach ($roles as $role)
+            {
+                $role_model = Model_Auth_Role::factory($role);
+                $user_model->Roles[] = $role_model;
+            }
+                        
+        }
+        
+        $collection->save();
     }
 
     /**
