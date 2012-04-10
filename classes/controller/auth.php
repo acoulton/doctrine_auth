@@ -25,7 +25,7 @@ class Controller_Auth extends Controller_Base_Public {
 
         #If there is a post and $_POST is not empty
         if ($_POST) {
-            /* @var $user Model_User */
+            /* @var $user Model_Auth_User */
             $user = Auth::instance()
                     ->login(Arr::get($_POST, 'email'),
                             Arr::get($_POST, 'password'),
@@ -62,7 +62,7 @@ class Controller_Auth extends Controller_Base_Public {
         {
             $values = Arr::extract($_POST, array('email','password','password_confirm','full_name'));
 
-            $user = new Model_User();
+            $user = new Model_Auth_User();
             $user->fromArray(Arr::extract($_POST, array('email','password','full_name')));
 
             if ( ! $user->isValid())
@@ -93,9 +93,9 @@ class Controller_Auth extends Controller_Base_Public {
 
         if ($token)
         {
-            if ($user = Model_User::activate($token))
+            if ($user = Model_Auth_User::activate($token))
             {
-                /* @var $user Model_User */
+                /* @var $user Model_Auth_User */
                 $this->request->redirect($user->getAccountHomepage());
             }
         }
@@ -112,7 +112,7 @@ class Controller_Auth extends Controller_Base_Public {
         // If a token was provided
         if ($token)
         {
-            if (Model_User::activate($token))
+            if (Model_Auth_User::activate($token))
             {
                 // Go to their account edit page
                 $this->request->redirect(Route::get('auth')->uri(array('action'=>'account')));
@@ -126,7 +126,7 @@ class Controller_Auth extends Controller_Base_Public {
         // If the form was submitted, resend the token
         if ($_POST)
         {
-            if (Model_User::send_token('reset',Arr::get($_POST,'email')))
+            if (Model_Auth_User::send_token('reset',Arr::get($_POST,'email')))
             {
                 $this->flashMessage('formdone', Kohana::message('auth','activation.token_sent'));
             }

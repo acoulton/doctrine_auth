@@ -238,7 +238,7 @@ class Auth_Doctrine extends Auth {
         if (!is_object($current) AND is_string($user)) {
             // Load the user
             $current = Doctrine_Query::create()
-                        ->from('Model_User u')
+                        ->from('Model_Auth_User u')
                         ->leftJoin('u.Roles')
                         ->where('email = ?',$user)
                         ->fetchOne();
