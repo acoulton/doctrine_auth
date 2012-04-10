@@ -246,12 +246,12 @@ abstract class AndrewC_Model_Auth_User extends KoDoctrine_Record
             $textMessage = preg_replace('/[ \t]+/', ' ', strip_tags($richMessage));
 
             $message = Swift_Message::newInstance(
-                                $config('email_subject'),
+                                $config['email_subject'],
                                 $textMessage);
             $message->addPart($richMessage,'text/html');
 
-            $message->setFrom($config('email_sender_email'),
-                              $config('email_sender_name'));
+            $message->setFrom($config['email_sender_email'],
+                              $config['email_sender_name']);
             $message->setTo($user->email);
 
             if ( ! $mailer->send($message)) {
