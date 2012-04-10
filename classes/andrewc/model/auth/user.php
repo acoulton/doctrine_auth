@@ -26,17 +26,6 @@ abstract class AndrewC_Model_Auth_User extends KoDoctrine_Record
         $this->setTableName('auth__user');
         $this->hasColumn('email', 'string', 255, array(
              'type' => 'string',
-             'validation' =>
-             array(
-              'rules' =>
-              array(
-              'email' =>
-              array(
-               0 => false,
-              ),
-              'not_empty' => NULL,
-              ),
-             ),
              'length' => '255',
              ));
         $this->hasColumn('password', 'string', 255, array(
@@ -45,13 +34,6 @@ abstract class AndrewC_Model_Auth_User extends KoDoctrine_Record
              ));
         $this->hasColumn('full_name', 'string', 255, array(
              'type' => 'string',
-             'validation' =>
-             array(
-              'rules' =>
-              array(
-              'not_empty' => NULL,
-              ),
-             ),
              'length' => '255',
              ));
         $this->hasColumn('position', 'string', 255, array(
@@ -90,6 +72,23 @@ abstract class AndrewC_Model_Auth_User extends KoDoctrine_Record
              'foreign' => 'user_id'));
         $this->hasMutator('password', 'set_password');
     }
+	
+	/**
+	 * Custom field validation
+	 * 
+	 * @param array $data
+	 * @return Validate 
+	 */
+	public function get_validation($data)
+	{
+		$validation = parent::get_validation($data);
+		
+		$validation->rule('email', 'email');
+		$validation->rule('email', 'not_empty');
+		$validation->rule('full_name', 'not_empty');
+		
+		return $validation;
+	}
 
 
         	/**
