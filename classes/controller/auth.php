@@ -73,7 +73,7 @@ class Controller_Auth extends Controller_Base_Public {
                 }
             }
 
-            if ( ! Validate::equals($values['password'], $values['password_confirm']))
+            if ( ! Valid::equals($values['password'], $values['password_confirm']))
             {
                 $errors['password_confirm'] = Kohana::message('auth','account.no_password_match');
             }
@@ -171,7 +171,7 @@ class Controller_Auth extends Controller_Base_Public {
                 }
             }
 
-            if ( ! Validate::equals(Arr::get($_POST,'password'), Arr::get($_POST,'password_confirm')))
+            if ( ! Valid::equals(Arr::get($_POST,'password'), Arr::get($_POST,'password_confirm')))
             {
                 $errors['password_confirm'] = Kohana::message('auth','account.no_password_match');
             }
