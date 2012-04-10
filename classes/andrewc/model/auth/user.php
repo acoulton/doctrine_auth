@@ -145,11 +145,40 @@ abstract class AndrewC_Model_Auth_User extends KoDoctrine_Record
 	}
 
 
-        public function set_password($value, $load = true)
-        {
-            $value = Auth::instance()->hash_password($value);
-            return $this->_set('password', $value, $load);
-        }
+	/**
+	 * Setter for the password field that hashes the value before storing in
+	 * the model.
+	 *
+	 * @param string $value
+	 * @param boolean $load
+	 * @return Model_Auth_User
+	 */
+	public function set_password($value, $load = true)
+	{
+		$value = Auth_Hash::factory()->hash($value);
+		return $this->_set('password', $value, $load);
+	}
+
+	/**
+	 * Verifies that the password matches the hashed value and - if the hash
+	 * is out of date - sets the hashed password to the latest mechanism.
+	 *
+	 * @param string $password
+	 * @return boolean
+	 */
+	public function password_matches($password)
+	{
+		$auth_hash = Auth_Hash::factory();
+		if ($auth_hash->check($password, $this->password))
+		{
+			if ( ! $auth_hash->is_best())
+			{
+				$this->password = $password;
+			}
+			return TRUE;
+		}
+		return FALSE;
+	}
 
 
         public function validate()

@@ -68,7 +68,7 @@ class Auth_Doctrine extends Auth {
         $user = $this->_get_object($user);
 
         // If the passwords match, perform a login
-        if ($user AND $user->has_role('login') AND $user->password === $password) {
+        if ($user AND $user->has_role('login') AND $user->password_matches($password)) {
             if ($remember === TRUE) {
                 // Create a new autologin token
                 $token = new Model_Auth_User_Token();
@@ -175,19 +175,6 @@ class Auth_Doctrine extends Auth {
     }
 
     /**
-     * Get the stored password for a username.
-     *
-     * @param   mixed   username
-     * @return  string
-     */
-    public function password($user) {
-        // Make sure we have a user object
-        $user = $this->_get_object($user);
-
-        return $user ? $user->password : false;
-    }
-
-    /**
      * Complete the login for a user by incrementing the logins and setting
      * session data: user_id, username, roles
      *
@@ -205,25 +192,6 @@ class Auth_Doctrine extends Auth {
         $user->save();
 
         return parent::complete_login($user);
-    }
-
-    /**
-     * Compare password with original (hashed). Works for current (logged in) user
-     *
-     * @param   string  $password
-     * @return  boolean
-     */
-    public function check_password($password) {
-        $user = $this->get_user();
-
-        if ($user === FALSE) {
-            // nothing to compare
-            return FALSE;
-        }
-
-        $hash = $this->hash_password($password, $this->find_salt($user->password));
-
-        return $hash == $user->password;
     }
 
     /**
@@ -250,4 +218,35 @@ class Auth_Doctrine extends Auth {
 
         return $current;
     }
+
+	/**
+	 * Override the legacy method - this needs to be handled by the hash
+	 * provider class to separate the check and hash methods and allow
+	 * upgrading of hashing from version to version.
+	 */
+	public function hash_password($password, $salt = FALSE)
+	{
+		throw new BadMethodCallException("Legacy hash_password method called in Auth_Doctrine driver");
+	}
+
+	/**
+	 * Override the legacy method - this needs to be handled by the hash
+	 * provider class to separate the check and hash methods and allow
+	 * upgrading of hashing from version to version.
+	 */
+	public function password($username)
+	{
+		throw new BadMethodCallException("Unexpected call to password method");
+	}
+
+	/**
+	 * Override the legacy method - this needs to be handled by the hash
+	 * provider class to separate the check and hash methods and allow
+	 * upgrading of hashing from version to version.
+	 */
+	public function check_password($password)
+	{
+		throw new BadMethodCallException("Unexpected call to check_password method");
+	}
+
 }
