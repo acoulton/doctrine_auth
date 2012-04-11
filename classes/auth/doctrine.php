@@ -8,6 +8,13 @@
  */
 class Auth_Doctrine extends Auth {
 
+	const LOGIN_INVALID_USER = 1;
+	const LOGIN_USER_INACTIVE = 2;
+	const LOGIN_BAD_PASSWORD = 3;
+
+	protected $_login_status = NULL;
+
+
     /**
      * Checks if a session is active.
      *
@@ -64,34 +71,50 @@ class Auth_Doctrine extends Auth {
      * @return  boolean
      */
     public function _login($user, $password, $remember) {
+
         // Make sure we have a user object
         $user = $this->_get_object($user);
 
-        // If the passwords match, perform a login
-        if ($user AND $user->has_role('login') AND $user->password_matches($password)) {
-            if ($remember === TRUE) {
-                // Create a new autologin token
-                $token = new Model_Auth_User_Token();
+		// Check that user is valid, has login role and valid password
+		if ( ! $user)
+		{
+			$this->_login_status = self::LOGIN_INVALID_USER;
+			return FALSE;
+		}
 
-                // Set token data
-                $token->user = $user->id;
-                $token->expires = time() + $this->_config['lifetime'];
-                $token->type = 'autologin';
+		if ( ! $user->has_role('login'))
+		{
+			$this->_login_status = self::LOGIN_USER_INACTIVE;
+			return FALSE;
+		}
 
-                $token->create();
+		if ( ! $user->password_matches($password))
+		{
+			$this->_login_status = self::LOGIN_BAD_PASSWORD;
+			return FALSE;
+		}
 
-                // Set the autologin Cookie
-                Cookie::set('authautologin', $token->token, $this->_config['lifetime']);
-            }
+		// Perform a login
+		$this->_login_status = TRUE;
+		if ($remember === TRUE) {
+			// Create a new autologin token
+			$token = new Model_Auth_User_Token();
 
-            // Finish the login
-            $this->complete_login($user);
+			// Set token data
+			$token->user = $user->id;
+			$token->expires = time() + $this->_config['lifetime'];
+			$token->type = 'autologin';
 
-            return TRUE;
-        }
+			$token->create();
 
-        // Login failed
-        return FALSE;
+			// Set the autologin Cookie
+			Cookie::set('authautologin', $token->token, $this->_config['lifetime']);
+		}
+
+		// Finish the login
+		$this->complete_login($user);
+
+		return TRUE;
     }
 
     /**
@@ -218,6 +241,12 @@ class Auth_Doctrine extends Auth {
 
         return $current;
     }
+
+	
+	public function last_login_status()
+	{
+		return $this->_login_status;
+	}
 
 	/**
 	 * Override the legacy method - this needs to be handled by the hash
