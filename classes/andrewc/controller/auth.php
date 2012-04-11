@@ -41,7 +41,7 @@ class AndrewC_Controller_Auth extends Controller_Base_Public {
 			return $this->_redirect_home();
 
 		// Try to sign in
-		if ($values)
+		if ($this->request->method() == Request::POST)
 		{
             if (Auth::instance()
                     ->login(Arr::get($values, 'email'),
@@ -96,7 +96,7 @@ class AndrewC_Controller_Auth extends Controller_Base_Public {
 	protected function _do_register(&$values = array(), &$errors = array())
 	{
 
-        if ($values)
+        if ($this->request->method() == Request::POST)
         {
 			// They must provide some kind of password
 			if ($values['password'] == NULL)
@@ -220,36 +220,44 @@ class AndrewC_Controller_Auth extends Controller_Base_Public {
             }
         }
     }
-
+	
+	
 	/**
 	 * Allows the user to edit their account details
+	 * 
+	 * @param array $values
+	 * @param array $errors
+	 * @return boolean|null 
 	 */
-    public function action_account()
-    {
-        if ( ! Auth::instance()->logged_in()) {
-                Kohana::$log->add(Log::ERROR,
-                            "Attempted to access account edit without logging in");
-                $this->request->redirect(Route::get('auth')->uri(array('action'=>'signout')));
-            }
-
-        $user = Auth::instance()->get_user();
-        /* @var $user Model_Auth_User */
-        $values = array('email'=>$user->email,
-                        'full_name'=>$user->full_name);
-        $errors = array();
-        $this->template->body = View::factory('auth/account')
-                                ->bind('errors',$errors)
-                                ->bind('values',$values);
-
-        if ($_POST)
+	protected function _do_account(&$values, &$errors)
+	{
+		// Verify that the user is logged in
+        if ( ! Auth::instance()->logged_in()) 
+		{
+			Kohana::$log->add(Log::ERROR,
+				"Attempted to access account edit without logging in");
+            return $this->request->redirect(Route::get('auth')->uri(array('action'=>'signout')));
+        }			
+		
+		// Load the current user
+		$user = Auth::instance()->get_user();
+		/* @var $user Model_Auth_User */
+		
+		if ($this->request->method() == Request::POST)
         {
-            //$user->email = Arr::get($_POST,'email');
-            $user->full_name = Arr::get($_POST,'full_name');
-            if ($password = Arr::get($_POST,'password'))
-            {
-                $user->password = $password;
-            }
+			// Set the full name if it's present
+			if (isset($values['full_name']))
+			{
+				$user->full_name = $values['full_name'];
+			}
+			
+			// Set password if they have set a value
+            if ($values['password'])
+			{
+				$user->password = $password;
+			}
 
+			// Validate the user object
             if ( ! $user->isValid())
             {
                 foreach ($user->errorStack()->toArray() as $field=>$errors)
@@ -258,7 +266,8 @@ class AndrewC_Controller_Auth extends Controller_Base_Public {
                 }
             }
 
-            if ( ! Valid::equals(Arr::get($_POST,'password'), Arr::get($_POST,'password_confirm')))
+			// Validate the password confirmation
+            if ( ! Valid::equals($values['password'], $values['password_confirm']))
             {
                 $errors['password_confirm'] = Kohana::message('auth','account.no_password_match');
             }
@@ -266,10 +275,38 @@ class AndrewC_Controller_Auth extends Controller_Base_Public {
             if ( ! $errors)
             {
                 $user->save();
-                $this->flashMessage('formdone', Kohana::message('auth','account.updated'));
-                $this->request->redirect($user->getAccountHomepage());
+				return TRUE;
             }
         }
+		
+		// Populate fields that aren't in POST data
+		$values['email'] = $user->email;
+		$values['full_name'] = $user->full_name;
+		
+		if ($errors)
+		{
+			return FALSE;
+		}
+		
+		return NULL;		
+	}
+
+	/**
+	 * Allows the user to edit their account details
+	 */
+    public function action_account()
+    {			
+		$values = Arr::extract($this->request->post(), array('email','full_name','password','password_confirm'));
+		
+		if ($this->_do_account($values, $errors))
+		{
+			    $this->flashMessage('formdone', Kohana::message('auth','account.updated'));
+                return $this->_redirect_home();
+		}
+		
+        $this->template->body = View::factory('auth/account')
+                                ->bind('errors',$errors)
+                                ->bind('values',$values);
     }
 
 	/**
