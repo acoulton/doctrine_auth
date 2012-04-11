@@ -198,7 +198,7 @@ class Auth_Doctrine extends Auth {
      * Convert a unique identifier string to a user object
      *
      * @param mixed $user
-     * @return Model_User
+     * @return Model_Auth_User
      */
     protected function _get_object($user) {
         static $current;

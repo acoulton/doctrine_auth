@@ -72,21 +72,21 @@ abstract class AndrewC_Model_Auth_User extends KoDoctrine_Record
              'foreign' => 'user_id'));
         $this->hasMutator('password', 'set_password');
     }
-	
+
 	/**
 	 * Custom field validation
-	 * 
+	 *
 	 * @param array $data
-	 * @return Validate 
+	 * @return Validate
 	 */
 	public function get_validation($data)
 	{
 		$validation = parent::get_validation($data);
-		
+
 		$validation->rule('email', 'email');
 		$validation->rule('email', 'not_empty');
 		$validation->rule('full_name', 'not_empty');
-		
+
 		return $validation;
 	}
 
@@ -229,7 +229,7 @@ abstract class AndrewC_Model_Auth_User extends KoDoctrine_Record
 
         public static function send_token($type, $user, $mail_template = null)
         {
-            if ( ! ($user instanceof Model_User))
+            if ( ! ($user instanceof Model_Auth_User))
             {
                 $user = Doctrine_Query::create()
                             ->from('Model_Auth_User')
