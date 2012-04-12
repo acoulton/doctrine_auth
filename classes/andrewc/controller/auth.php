@@ -291,7 +291,7 @@ class AndrewC_Controller_Auth extends Controller_Base_Public {
 			// Set password if they have set a value
             if ($values['password'])
 			{
-				$user->password = $password;
+				$user->password = $values['password'];
 			}
 
 			// Validate the user object
