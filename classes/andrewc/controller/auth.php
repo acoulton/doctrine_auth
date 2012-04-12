@@ -11,6 +11,11 @@
  */
 class AndrewC_Controller_Auth extends Controller_Base_Public {
 
+	const RESET_COMPLETE = 1;
+	const RESET_INVALID = 2;
+	const RESET_TRIGGERED = 3;
+	const RESET_UNKNOWN_ACCOUNT = 4;
+
 	/**
 	 * Redirects the current request to the homepage for the logged in (or a
 	 * specific) user.
@@ -182,6 +187,47 @@ class AndrewC_Controller_Auth extends Controller_Base_Public {
         $this->template->body = View::factory('auth/activate');
     }
 
+	/**
+	 * Handles the password reset action - processing reset, returning status,
+	 * allowing a reset to be triggered.
+	 *
+	 * @param array $values POST data
+	 * @return int One of the self::RESET_XXX constants
+	 */
+	protected function _do_reset(&$values)
+	{
+		$token = $this->request->param('token');
+
+		// If a token was provided
+		if ($token)
+		{
+			// Try to activate the token
+			if (Model_Auth_User::activate($token))
+			{
+				return self::RESET_COMPLETE;
+			}
+			else
+			{
+				return self::RESET_INVALID;
+			}
+		}
+
+		// If a token wasn't provided, check if one is to be sent
+		if ($this->request->method() === Request::POST)
+		{
+			if (Model_Auth_User::send_token('reset',$values['email']))
+			{
+				return self::RESET_TRIGGERED;
+			}
+			else
+			{
+				return self::RESET_UNKNOWN_ACCOUNT;
+			}
+		}
+
+		return NULL;
+	}
+
 
 	/**
 	 * Resets a user's password and sends them a token that allows them to
@@ -189,60 +235,51 @@ class AndrewC_Controller_Auth extends Controller_Base_Public {
 	 */
     public function action_reset()
     {
-        $token = $this->request->param('token');
         $this->template->body = View::factory('auth/reset')
                                 ->bind('error_message',$error_message);
 
-        // If a token was provided
-        if ($token)
-        {
-            if (Model_Auth_User::activate($token))
-            {
-                // Go to their account edit page
-                $this->request->redirect(Route::get('auth')->uri(array('action'=>'account')));
-            }
-            else
-            {
-                $error_message = Kohana::message('auth','activation.token_not_valid');
-            }
-        }
+		switch ($this->_do_reset($this->request->post()))
+		{
+			case self::RESET_COMPLETE;
+				// Go to account edit page where they can set a new password
+				return $this->request->redirect(Route::get('auth')->uri(array('action'=>'account')));
 
-        // If the form was submitted, resend the token
-        if ($_POST)
-        {
-            if (Model_Auth_User::send_token('reset',Arr::get($_POST,'email')))
-            {
-                $this->flashMessage('formdone', Kohana::message('auth','activation.token_sent'));
-            }
-            else
-            {
-                $error_message = Kohana::message('auth','activation.account_not_found');
-            }
-        }
+			case self::RESET_INVALID:
+				$error_message = Kohana::message('auth', 'activation.token_not_valid');
+				break;
+
+			case self::RESET_TRIGGERED:
+				$this->flashMessage('formdone', Kohana::message('auth','activation.token_sent'));
+				break;
+
+			case self::RESET_UNKNOWN_ACCOUNT:
+				$error_message = Kohana::message('auth','activation.account_not_found');
+				break;
+		}
     }
-	
-	
+
+
 	/**
 	 * Allows the user to edit their account details
-	 * 
+	 *
 	 * @param array $values
 	 * @param array $errors
-	 * @return boolean|null 
+	 * @return boolean|null
 	 */
 	protected function _do_account(&$values, &$errors)
 	{
 		// Verify that the user is logged in
-        if ( ! Auth::instance()->logged_in()) 
+        if ( ! Auth::instance()->logged_in())
 		{
 			Kohana::$log->add(Log::ERROR,
 				"Attempted to access account edit without logging in");
             return $this->request->redirect(Route::get('auth')->uri(array('action'=>'signout')));
-        }			
-		
+        }
+
 		// Load the current user
 		$user = Auth::instance()->get_user();
 		/* @var $user Model_Auth_User */
-		
+
 		if ($this->request->method() == Request::POST)
         {
 			// Set the full name if it's present
@@ -250,7 +287,7 @@ class AndrewC_Controller_Auth extends Controller_Base_Public {
 			{
 				$user->full_name = $values['full_name'];
 			}
-			
+
 			// Set password if they have set a value
             if ($values['password'])
 			{
@@ -278,32 +315,32 @@ class AndrewC_Controller_Auth extends Controller_Base_Public {
 				return TRUE;
             }
         }
-		
+
 		// Populate fields that aren't in POST data
 		$values['email'] = $user->email;
 		$values['full_name'] = $user->full_name;
-		
+
 		if ($errors)
 		{
 			return FALSE;
 		}
-		
-		return NULL;		
+
+		return NULL;
 	}
 
 	/**
 	 * Allows the user to edit their account details
 	 */
     public function action_account()
-    {			
+    {
 		$values = Arr::extract($this->request->post(), array('email','full_name','password','password_confirm'));
-		
+
 		if ($this->_do_account($values, $errors))
 		{
 			    $this->flashMessage('formdone', Kohana::message('auth','account.updated'));
                 return $this->_redirect_home();
 		}
-		
+
         $this->template->body = View::factory('auth/account')
                                 ->bind('errors',$errors)
                                 ->bind('values',$values);
