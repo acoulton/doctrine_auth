@@ -346,29 +346,4 @@ class AndrewC_Controller_Auth extends Controller_Base_Public {
                                 ->bind('values',$values);
     }
 
-	/**
-	 * CLI method to create a user on installation
-	 * @throws BadMethodCallException
-	 */
-    public function action_create_user()
-    {
-        if ( ! Kohana::$is_cli)
-        {
-            throw new BadMethodCallException("create_user is only permitted from CLI");
-        }
-        $this->auto_render = false;
-
-        $cli_values = CLI::options('email','name','roles', 'password');
-        $roles = explode(',', Arr::get($cli_values, 'roles','admin,login'));
-
-        $user = Model_Auth_User::create_user(Arr::get($cli_values, 'email', null),
-                Arr::get($cli_values, 'name', null), $roles);
-
-        if ($password = Arr::get($cli_values, 'password'))
-        {
-            $user->password = $password;
-            $user->save();
-        }
-
-    }
 }
