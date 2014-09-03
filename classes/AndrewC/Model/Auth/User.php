@@ -259,7 +259,7 @@ abstract class AndrewC_Model_Auth_User extends KoDoctrine_Record
             /*
              * Send activation email
              */
-            $mailer = Email::connect();
+            $mailer = Email::mailer();
             /* @var $mailer Swift_Mailer */
             if ($mail_template == null)
             {
