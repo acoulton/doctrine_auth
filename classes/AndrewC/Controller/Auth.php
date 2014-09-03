@@ -30,7 +30,7 @@ class AndrewC_Controller_Auth extends Controller_Base_Public {
 					->get_user();
 		}
 
-		$this->request->redirect($user->getAccountHomepage());
+		$this->redirect($user->getAccountHomepage());
 	}
 
 	/**
@@ -89,7 +89,7 @@ class AndrewC_Controller_Auth extends Controller_Base_Public {
         Auth::instance()->logout();
 
         #redirect to the user account and then the signin page if logout worked as expected
-        $this->request->redirect(Route::get('default')->uri());
+        $this->redirect(Route::get('default')->uri());
     }
 
 	/**
@@ -149,7 +149,7 @@ class AndrewC_Controller_Auth extends Controller_Base_Public {
 		$values = Arr::extract($this->request->post(), array('email','password','password_confirm','full_name'));
 
 		if ($this->_do_register($values, $errors))
-			return $this->request->redirect(Route::get('auth')->uri(array('action'=>'activate')));
+			return $this->redirect(Route::get('auth')->uri(array('action'=>'activate')));
 
         $this->template->body = View::factory('auth/register')
                                 ->set('errors',$errors)
@@ -242,7 +242,7 @@ class AndrewC_Controller_Auth extends Controller_Base_Public {
 		{
 			case self::RESET_COMPLETE;
 				// Go to account edit page where they can set a new password
-				return $this->request->redirect(Route::get('auth')->uri(array('action'=>'account')));
+				return $this->redirect(Route::get('auth')->uri(array('action'=>'account')));
 
 			case self::RESET_INVALID:
 				$error_message = Kohana::message('auth', 'activation.token_not_valid');
@@ -273,7 +273,7 @@ class AndrewC_Controller_Auth extends Controller_Base_Public {
 		{
 			Kohana::$log->add(Log::ERROR,
 				"Attempted to access account edit without logging in");
-            return $this->request->redirect(Route::get('auth')->uri(array('action'=>'signout')));
+            return $this->redirect(Route::get('auth')->uri(array('action'=>'signout')));
         }
 
 		// Load the current user
