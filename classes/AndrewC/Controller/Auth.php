@@ -39,7 +39,7 @@ class AndrewC_Controller_Auth extends Controller_Base_Public {
 	 *
 	 * @return boolean	FALSE if signin failed, NULL if it passed
 	 */
-	protected function _do_signin(&$values, &$errors)
+	protected function _do_signin($values)
 	{
         // If user already signed-in then send to their homepage
         if (Auth::instance()->logged_in() != 0)
