@@ -15,7 +15,7 @@
     "require": {
         "php":              ">=5.3.3",
         "kohana/core":      "3.3.*",
-        "shadowhand/email": "3.3.*@dev"
+        "shadowhand/email": "~2.0.2"
     },
     "require-dev": {
         "kohana/koharness": "*@dev",
