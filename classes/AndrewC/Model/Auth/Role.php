@@ -51,7 +51,7 @@ abstract class AndrewC_Model_Auth_Role extends KoDoctrine_Record
                 ->fetchOne();
 
         if ( ! $role) {
-            $role = new Model_Role();
+            $role = new Model_Auth_Role();
             $role->name = $role_name;
             $role->description = $description;
             $role->save();
