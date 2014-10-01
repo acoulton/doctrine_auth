@@ -98,7 +98,7 @@ class AndrewC_Controller_Auth extends Controller_Base_Public {
 	 * @param array $errors  A set of field errors
 	 * @return boolean|null  TRUE if registered OK, FALSE if not registered, NULL if the form has not been submitted
 	 */
-	protected function _do_register(&$values = array(), &$errors = array())
+	protected function _do_register($values = array(), &$errors = array())
 	{
 
         if ($this->request->method() == Request::POST)
@@ -194,7 +194,7 @@ class AndrewC_Controller_Auth extends Controller_Base_Public {
 	 * @param array $values POST data
 	 * @return int One of the self::RESET_XXX constants
 	 */
-	protected function _do_reset(&$values)
+	protected function _do_reset($values)
 	{
 		$token = $this->request->param('token');
 
