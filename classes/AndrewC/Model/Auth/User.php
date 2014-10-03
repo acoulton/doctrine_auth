@@ -14,7 +14,7 @@ use Shadowhand\Email;
  * @property Doctrine_Collection $Roles
  * @property Doctrine_Collection $Auth_User_Token
  *
- * @package    StaffAdmin
+ * @package    teamdetails
  * @subpackage Models
  * @author     Andrew Coulton <andrew@edbookfest.co.uk>
  * @version    SVN: $Id: Builder.php 7490 2010-03-29 19:53:27Z jwage $

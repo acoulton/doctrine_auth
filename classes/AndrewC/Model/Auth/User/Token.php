@@ -13,7 +13,7 @@
  * @property enum $type
  * @property Model_Auth_User $User
  *
- * @package    StaffAdmin
+ * @package    teamdetails
  * @subpackage Models
  * @author     Andrew Coulton <andrew@edbookfest.co.uk>
  * @version    SVN: $Id: Builder.php 7490 2010-03-29 19:53:27Z jwage $

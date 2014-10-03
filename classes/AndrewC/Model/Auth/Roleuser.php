@@ -8,7 +8,7 @@
  * @property integer $user_id
  * @property integer $role_id
  *
- * @package    StaffAdmin
+ * @package    teamdetails
  * @subpackage Models
  * @author     Andrew Coulton <andrew@edbookfest.co.uk>
  * @version    SVN: $Id: Builder.php 7490 2010-03-29 19:53:27Z jwage $
