@@ -63,7 +63,7 @@ abstract class AndrewC_Model_Auth_User extends KoDoctrine_Record
     {
         parent::setUp();
         $this->hasMany('Model_Auth_Role as Roles', array(
-             'refClass' => 'Model_Auth_Roleuser',
+             'refClass' => 'Model_Auth_RoleUser',
              'local' => 'user_id',
              'foreign' => 'role_id'));
 
