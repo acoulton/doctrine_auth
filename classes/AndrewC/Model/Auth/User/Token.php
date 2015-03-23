@@ -85,7 +85,7 @@ abstract class AndrewC_Model_Auth_User_Token extends KoDoctrine_Record
     public function create_token() {
         while (TRUE) {
             // Create a random token
-            $token = text::random('alnum', 32);
+            $token = Text::random('alnum', 32);
 
             // Make sure the token does not already exist
             $query = Doctrine_Query::create()
