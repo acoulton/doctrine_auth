@@ -1,5 +1,5 @@
 <?php
-use Shadowhand\Email;
+
 /**
  * Model_Base_Auth_User
  *
